@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="GrpcStreamingDemo.Client/GrpcStreamingDemo.Client.csproj" />
+  <Project Path="GrpcStreamingDemo/GrpcStreamingDemo.csproj" />
+</Solution>
