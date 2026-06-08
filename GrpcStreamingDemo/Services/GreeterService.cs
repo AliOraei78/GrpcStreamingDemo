@@ -184,4 +184,46 @@ public class GreeterService : Greeter.GreeterBase
             Success = true
         });
     }
+
+    public override async Task<HelloReply> SayHelloWithDelay(HelloRequest request, ServerCallContext context)
+    {
+        _logger.LogInformation(
+            "Starting delayed operation for {Name} - requested delay: {Delay} seconds",
+            request.Name,
+            request.DelaySeconds);
+
+        int delay = request.DelaySeconds > 0 ? request.DelaySeconds : 5;
+
+        try
+        {
+            // Simulate long-running work
+            for (int i = 1; i <= delay; i++)
+            {
+                // Check for cancellation
+                if (context.CancellationToken.IsCancellationRequested)
+                {
+                    _logger.LogWarning("Operation cancelled by client.");
+                    throw new RpcException(
+                        new Status(StatusCode.Cancelled, "Operation was cancelled by the user."));
+                }
+
+                await Task.Delay(1000, context.CancellationToken);
+                _logger.LogInformation("Second {i} of {delay} elapsed", i, delay);
+            }
+
+            return new HelloReply
+            {
+                Message = $"Operation with {delay}s delay completed successfully.",
+                Timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
+                Success = true
+            };
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("Operation cancelled via exception.");
+
+            throw new RpcException(
+                new Status(StatusCode.Cancelled, "Operation was cancelled."));
+        }
+    }
 }

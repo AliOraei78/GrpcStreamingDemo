@@ -56,3 +56,10 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * Server-side input validation
 * Client-side handling of `RpcException`
 * Use of `Metadata` for enriched error details
+
+## Implemented Features (Day 8)
+
+* All four RPC types
+* Advanced error handling
+* **Deadlines and cancellation support**
+* Handling of `OperationCanceledException` and `DeadlineExceeded` exceptions

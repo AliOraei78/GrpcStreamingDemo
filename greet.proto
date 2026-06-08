@@ -19,6 +19,9 @@ service Greeter {
 
   // New validation method for error handling demo
   rpc SayHelloWithValidation (HelloRequest) returns (HelloReply);
+
+  // New method for Deadline and Cancellation testing
+  rpc SayHelloWithDelay (HelloRequest) returns (HelloReply);
 }
 
 message HelloRequest {
@@ -27,6 +30,7 @@ message HelloRequest {
   string email = 3;
   int32 count = 4;
   string message = 5;
+  int32 delaySeconds = 6;
 }
 
 message HelloReply {

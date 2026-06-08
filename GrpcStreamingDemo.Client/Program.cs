@@ -2,44 +2,44 @@
 using Grpc.Core;
 using GrpcStreamingDemo;
 
-Console.WriteLine("=== gRPC Error Handling Demo - Day 7 ===\n");
+Console.WriteLine("=== gRPC Deadlines and Cancellation Demo - Day 8 ===\n");
 
-using var channel = GrpcChannel.ForAddress("https://localhost:7007");
+using var channel = GrpcChannel.ForAddress("https://localhost:7007"); // ensure correct server port
 var client = new Greeter.GreeterClient(channel);
 
 try
 {
-    // Test 1: Valid request
-    Console.WriteLine("Test 1: Valid request");
-    var validRequest = new HelloRequest
+    var request = new HelloRequest
     {
-        Name = "Mohammad Jenabi",
-        Email = "mohammad@example.com"
+        Name = "Ali Jenabi",
+        DelaySeconds = 8 // 8 seconds delay
     };
 
-    var validReply = await client.SayHelloWithValidationAsync(validRequest);
-    Console.WriteLine($"✅ Success: {validReply.Message}\n");
+    // Set deadline (e.g., 4 seconds)
+    var deadline = DateTime.UtcNow.AddSeconds(4);
 
-    // Test 2: Invalid request (error case)
-    Console.WriteLine("Test 2: Invalid request");
-    var invalidRequest = new HelloRequest { Name = "ab" }; // too short name
+    Console.WriteLine("Sending request with 4-second deadline...");
 
-    await client.SayHelloWithValidationAsync(invalidRequest);
+    var reply = await client.SayHelloWithDelayAsync(
+        request,
+        deadline: deadline,
+        cancellationToken: new CancellationTokenSource(5000).Token
+    );
+
+    Console.WriteLine($"✅ Success: {reply.Message}");
 }
-catch (RpcException ex)
+catch (RpcException ex) when (ex.StatusCode == StatusCode.DeadlineExceeded)
 {
-    Console.WriteLine($"❌ RpcException occurred!");
-    Console.WriteLine($"StatusCode: {ex.StatusCode}");
+    Console.WriteLine("⏰ DeadlineExceeded: request timed out!");
     Console.WriteLine($"Message: {ex.Status.Detail}");
-
-    foreach (var entry in ex.Trailers)
-    {
-        Console.WriteLine($"Metadata: {entry.Key} = {entry.Value}");
-    }
+}
+catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled)
+{
+    Console.WriteLine("🚫 Operation cancelled");
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"❌ Unexpected error: {ex.Message}");
+    Console.WriteLine($"❌ Other error: {ex.Message}");
 }
 
 Console.WriteLine("\nPress any key to exit...");
