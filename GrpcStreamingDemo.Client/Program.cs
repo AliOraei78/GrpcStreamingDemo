@@ -1,33 +1,43 @@
-﻿using Grpc.Core;
-using Grpc.Net.Client;
+﻿using Grpc.Net.Client;
 using GrpcStreamingDemo;
 
-Console.WriteLine("=== gRPC Server Streaming Demo - Day 4 ===\n");
+Console.WriteLine("=== gRPC Client Streaming Demo - Day 5 ===\n");
 
 using var channel = GrpcChannel.ForAddress("https://localhost:7007"); // check service port
 var client = new Greeter.GreeterClient(channel);
 
 try
 {
-    var request = new HelloRequest
+    using var call = client.SayHelloClientStream();
+
+    Console.WriteLine("Sending multiple messages to server...\n");
+
+    for (int i = 1; i <= 10; i++)
     {
-        Name = "Ali Jenabi",
-        Language = "C#",
-        Count = 8 // number of requested messages
-    };
+        var request = new HelloRequest
+        {
+            Name = "Ali Jenabi",
+            Message = $"Message #{i} from client",
+            Language = "C#",
+            Email = "ali@example.com"
+        };
 
-    Console.WriteLine("Sending Server Streaming request...\n");
+        await call.RequestStream.WriteAsync(request);
+        Console.WriteLine($"📤 Message {i} sent");
 
-    using var call = client.SayHelloServerStream(request);
-
-    await foreach (var reply in call.ResponseStream.ReadAllAsync())
-    {
-        Console.WriteLine($"📨 Message received: {reply.Message}");
-        Console.WriteLine($"   Timestamp: {reply.Timestamp} | Counter: {reply.MessageCount}");
-        Console.WriteLine("   ──────────────────────────────");
+        await Task.Delay(400); // simulate delay
     }
 
-    Console.WriteLine("\n✅ Server Streaming completed successfully.");
+    await call.RequestStream.CompleteAsync(); // signal end of stream
+
+    Console.WriteLine("\nWaiting for final server response...");
+
+    var response = await call;
+
+    Console.WriteLine("\n✅ Final server response:");
+    Console.WriteLine($"Message: {response.Message}");
+    Console.WriteLine($"Total Received: {response.TotalReceived}");
+    Console.WriteLine($"Timestamp: {response.Timestamp}");
 }
 catch (Exception ex)
 {

@@ -12,57 +12,44 @@ public class GreeterService : Greeter.GreeterBase
         _logger = logger;
     }
 
-    // Previous Unary method (unchanged)
-    public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
-    {
-        _logger.LogInformation("Received Unary request from: {Name}", request.Name);
+    // Previous methods (Unary and Server Streaming) remain unchanged
 
-        return Task.FromResult(new HelloReply
-        {
-            Message = $"Hello {request.Name}!",
-            Timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
-            MessageCount = 1,
-            Success = true
-        });
-    }
-
-    // New method: Server Streaming
-    public override async Task SayHelloServerStream(
-        HelloRequest request,
-        IServerStreamWriter<HelloReply> responseStream,
+    // New method: Client Streaming
+    public override async Task<HelloReply> SayHelloClientStream(
+        IAsyncStreamReader<HelloRequest> requestStream,
         ServerCallContext context)
     {
-        _logger.LogInformation(
-            "Starting Server Streaming for user: {Name} - Count: {Count}",
-            request.Name,
-            request.Count);
+        int receivedCount = 0;
+        string lastName = string.Empty;
 
-        int total = request.Count > 0 ? request.Count : 5; // default 5 messages
+        _logger.LogInformation("Starting Client Streaming...");
 
-        for (int i = 1; i <= total; i++)
+        await foreach (var request in requestStream.ReadAllAsync(context.CancellationToken))
         {
-            // Check if client cancelled the request
-            if (context.CancellationToken.IsCancellationRequested)
-            {
-                _logger.LogWarning("Request was cancelled by the client.");
-                break;
-            }
+            receivedCount++;
+            lastName = request.Name;
 
-            var reply = new HelloReply
-            {
-                Message = $"Message {i} of {total} - Hello {request.Name}!",
-                Timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
-                MessageCount = i,
-                Success = true
-            };
+            _logger.LogInformation(
+                "Received message #{Count} from {Name}: {Message}",
+                receivedCount,
+                request.Name,
+                request.Message);
 
-            await responseStream.WriteAsync(reply);
-            _logger.LogInformation("Sent message #{i}", i);
-
-            // Simulate real streaming delay
-            await Task.Delay(800);
+            // Simulate per-message processing
+            await Task.Delay(300);
         }
 
-        _logger.LogInformation("Server Streaming completed.");
+        _logger.LogInformation(
+            "Client Streaming completed. Total received: {Count}",
+            receivedCount);
+
+        return new HelloReply
+        {
+            Message = $"✅ {receivedCount} messages successfully received from {lastName}.",
+            Timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
+            MessageCount = receivedCount,
+            Success = true,
+            TotalReceived = receivedCount
+        };
     }
 }

@@ -5,18 +5,22 @@ option csharp_namespace = "GrpcStreamingDemo";
 package greet;
 
 service Greeter {
-  // Unary (previous days)
+  // Unary
   rpc SayHello (HelloRequest) returns (HelloReply);
 
-  // Server Streaming - implemented today
+  // Server Streaming
   rpc SayHelloServerStream (HelloRequest) returns (stream HelloReply);
+
+  // Client Streaming - implemented today
+  rpc SayHelloClientStream (stream HelloRequest) returns (HelloReply);
 }
 
 message HelloRequest {
   string name = 1;
   string language = 2;
   string email = 3;
-  int32 count = 4; // Number of messages to receive
+  int32 count = 4;
+  string message = 5; // message per chunk
 }
 
 message HelloReply {
@@ -24,4 +28,5 @@ message HelloReply {
   string timestamp = 2;
   int32 messageCount = 3;
   bool success = 4;
+  int32 totalReceived = 5; // number of messages received by server
 }

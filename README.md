@@ -32,3 +32,11 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * Usage of `IServerStreamWriter` for streaming responses
 * Client-side consumption using `ReadAllAsync`
 * Cancellation handling and graceful stream termination
+
+## Implemented Features (Day 5)
+
+* Unary RPC implementation
+* Server Streaming implementation
+* Client Streaming (sending multiple messages from client to server)
+* Usage of `IAsyncStreamReader` and `RequestStream.WriteAsync`
+* Full stream lifecycle management on both client and server sides
