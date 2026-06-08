@@ -22,6 +22,9 @@ service Greeter {
 
   // New method for Deadline and Cancellation testing
   rpc SayHelloWithDelay (HelloRequest) returns (HelloReply);
+
+  // New method for Metadata & Headers demonstration
+  rpc SayHelloWithMetadata (HelloRequest) returns (HelloReply);
 }
 
 message HelloRequest {

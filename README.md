@@ -2,21 +2,21 @@
 
 A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, and Streaming** with **.NET 8**.
 
-## Implemented Features (Day 1)
+## Day 1: Implemented Features
 
 * Set up a gRPC Service project
 * Defined service contracts using Protobuf
 * Implemented Unary RPC communication
 * Created a Console Client application
 
-## Implemented Features (Day 2)
+## Day 2 & 3: Implemented Features
 
 * Advanced `.proto` definition with multiple RPC methods and message types
 * Automatic compilation of Protobuf into C# generated code
 * Extended message schemas with additional fields for scalability
 * Preparation for different types of streaming (server, client, and bidirectional)
 
-## Implemented Features (Day 3)
+## Day 4: Implemented Features
 
 * Full implementation of Unary RPC
 * Basic server-side error handling
@@ -25,7 +25,7 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * Professional Console Client with try-catch error handling
 
 
-## Implemented Features (Day 4)
+## Day 5: Implemented Features
 
 * Full Unary RPC implementation
 * Server Streaming with multiple message responses
@@ -33,7 +33,7 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * Client-side consumption using `ReadAllAsync`
 * Cancellation handling and graceful stream termination
 
-## Implemented Features (Day 5)
+## Day 6: Implemented Features
 
 * Unary RPC implementation
 * Server Streaming implementation
@@ -41,7 +41,7 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * Usage of `IAsyncStreamReader` and `RequestStream.WriteAsync`
 * Full stream lifecycle management on both client and server sides
 
-## Implemented Features (Day 6)
+## Day 7: Implemented Features
 
 * Unary RPC
 * Server Streaming
@@ -49,7 +49,7 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * **Bidirectional Streaming (full duplex communication)**
 * Concurrent handling of sending and receiving messages
 
-## Implemented Features (Day 7)
+## Day 8:Implemented Features
 
 * Unary, Server Streaming, Client Streaming, and Bidirectional Streaming
 * **Robust error handling using `RpcException` and `StatusCode`**
@@ -57,9 +57,22 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * Client-side handling of `RpcException`
 * Use of `Metadata` for enriched error details
 
-## Implemented Features (Day 8)
+## Day 9: Implemented Features
 
 * All four RPC types
 * Advanced error handling
 * **Deadlines and cancellation support**
 * Handling of `OperationCanceledException` and `DeadlineExceeded` exceptions
+
+## Day 10: Metadata and Headers in gRPC
+
+* Implementing sending and receiving Metadata in Request and Response
+* Using `context.RequestHeaders` and `context.ResponseHeaders`
+* Adding Trailers for post-response information
+* Simple authentication demo using the Authorization header
+* New method: `SayHelloWithMetadata`
+
+**Key points:**
+
+* Metadata is used to transfer auxiliary information without polluting the message model.
+* It is highly suitable for Logging, Tracing, Rate Limiting, and Authentication.

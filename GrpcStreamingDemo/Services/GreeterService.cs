@@ -226,4 +226,52 @@ public class GreeterService : Greeter.GreeterBase
                 new Status(StatusCode.Cancelled, "Operation was cancelled."));
         }
     }
+
+    // Day 10: Metadata & Headers
+    // Note: Changed to 'async Task<HelloReply>' to support awaiting WriteResponseHeadersAsync
+    public override async Task<HelloReply> SayHelloWithMetadata(
+        HelloRequest request,
+        ServerCallContext context)
+    {
+        // Reading metadata from client request
+        var metadata = context.RequestHeaders;
+
+        string userAgent = metadata.GetValue("user-agent") ?? "Unknown";
+        string authToken = metadata.GetValue("authorization") ?? "";
+        string customHeader = metadata.GetValue("x-custom-header") ?? "Not provided";
+        string acceptLanguage = metadata.GetValue("accept-language") ?? "fa";
+
+        _logger.LogInformation(
+            "Metadata received - User-Agent: {UserAgent}, Language: {Language}, Custom: {Custom}",
+            userAgent, acceptLanguage, customHeader);
+
+        // Simple token validation (demo purpose)
+        if (!string.IsNullOrEmpty(authToken) && authToken.StartsWith("Bearer "))
+        {
+            _logger.LogInformation("Authentication token validated successfully.");
+        }
+
+        // CORRECT WAY: Create a Metadata collection for response headers
+        var responseHeaders = new Grpc.Core.Metadata
+    {
+        { "x-server-version", "1.0.10" },
+        { "x-processed-by", "GrpcStreamingDemo-Day10" },
+        { "x-response-time", DateTime.UtcNow.ToString("o") }
+    };
+
+        // Send the response headers immediately before the main response message
+        await context.WriteResponseHeadersAsync(responseHeaders);
+
+        // Sending trailers (data sent after main response - this property exists!)
+        context.ResponseTrailers.Add("x-total-requests-today", "42");
+        context.ResponseTrailers.Add("x-session-id", Guid.NewGuid().ToString());
+
+        // Removed Task.FromResult because the method is now async
+        return new HelloReply
+        {
+            Message = $"Hello {request.Name}! Metadata processed successfully. Language: {acceptLanguage}",
+            Timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
+            Success = true
+        };
+    }
 }

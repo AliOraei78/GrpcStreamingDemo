@@ -1,45 +1,38 @@
-﻿using Grpc.Net.Client;
-using Grpc.Core;
+﻿using Grpc.Core;
+using Grpc.Net.Client;
 using GrpcStreamingDemo;
 
-Console.WriteLine("=== gRPC Deadlines and Cancellation Demo - Day 8 ===\n");
+Console.WriteLine("=== gRPC Metadata & Headers Demo - Day 10 ===\n");
 
-using var channel = GrpcChannel.ForAddress("https://localhost:7007"); // ensure correct server port
+using var channel = GrpcChannel.ForAddress("https://localhost:7007");
 var client = new Greeter.GreeterClient(channel);
+
+var request = new HelloRequest
+{
+    Name = "Ali Jenabi",
+    Email = "ali@example.com"
+};
+
+var headers = new Metadata
+{
+    { "authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." },
+    { "x-custom-header", "Grpc-Demo-Value" },
+    { "accept-language", "fa-IR" },
+    { "user-agent", "GrpcClient-Day10" }
+};
 
 try
 {
-    var request = new HelloRequest
-    {
-        Name = "Ali Jenabi",
-        DelaySeconds = 8 // 8 seconds delay
-    };
+    var reply = await client.SayHelloWithMetadataAsync(request, headers: headers);
 
-    // Set deadline (e.g., 4 seconds)
-    var deadline = DateTime.UtcNow.AddSeconds(4);
+    Console.WriteLine($"Response: {reply.Message}");
 
-    Console.WriteLine("Sending request with 4-second deadline...");
-
-    var reply = await client.SayHelloWithDelayAsync(
-        request,
-        deadline: deadline,
-        cancellationToken: new CancellationTokenSource(5000).Token
-    );
-
-    Console.WriteLine($"✅ Success: {reply.Message}");
+    // Display response headers (typically accessed via CallOptions)
+    Console.WriteLine("Metadata processing completed.");
 }
-catch (RpcException ex) when (ex.StatusCode == StatusCode.DeadlineExceeded)
+catch (RpcException ex)
 {
-    Console.WriteLine("⏰ DeadlineExceeded: request timed out!");
-    Console.WriteLine($"Message: {ex.Status.Detail}");
-}
-catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled)
-{
-    Console.WriteLine("🚫 Operation cancelled");
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"❌ Other error: {ex.Message}");
+    Console.WriteLine($"Error: {ex.Status.Detail}");
 }
 
 Console.WriteLine("\nPress any key to exit...");
