@@ -1,4 +1,10 @@
 <Solution>
+  <Folder Name="/Protos/">
+    <File Path="greet.proto" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
   <Project Path="GrpcStreamingDemo.Client/GrpcStreamingDemo.Client.csproj" />
   <Project Path="GrpcStreamingDemo/GrpcStreamingDemo.csproj" />
 </Solution>

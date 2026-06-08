@@ -4,18 +4,18 @@ option csharp_namespace = "GrpcStreamingDemo";
 
 package greet;
 
-// The greeting service definition.
+// Service definition
 service Greeter {
-  // Sends a greeting
+  // Unary RPC (single request → single response)
   rpc SayHello (HelloRequest) returns (HelloReply);
 }
 
-// The request message containing the user's name.
+// Request message
 message HelloRequest {
   string name = 1;
 }
 
-// The response message containing the greetings.
+// Response message
 message HelloReply {
   string message = 1;
 }

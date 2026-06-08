@@ -1,17 +1,17 @@
 using Grpc.Core;
+using GrpcStreamingDemo;
 
-namespace GrpcStreamingDemo.Services
+namespace GrpcStreamingDemo.Services;
+
+public class GreeterService : Greeter.GreeterBase
 {
-    public class GreeterService(ILogger<GreeterService> logger) : Greeter.GreeterBase
+    public override Task<HelloReply> SayHello(
+        HelloRequest request,
+        ServerCallContext context)
     {
-        public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
+        return Task.FromResult(new HelloReply
         {
-            logger.LogInformation("The message is received from {Name}", request.Name);
-
-            return Task.FromResult(new HelloReply
-            {
-                Message = "Hello " + request.Name
-            });
-        }
+            Message = $"Hello {request.Name}! gRPC is working."
+        });
     }
 }
