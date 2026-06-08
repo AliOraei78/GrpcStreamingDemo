@@ -16,6 +16,9 @@ service Greeter {
 
   // Bidirectional Streaming - implemented today
   rpc SayHelloBidirectional (stream HelloRequest) returns (stream HelloReply);
+
+  // New validation method for error handling demo
+  rpc SayHelloWithValidation (HelloRequest) returns (HelloReply);
 }
 
 message HelloRequest {
@@ -32,4 +35,10 @@ message HelloReply {
   int32 messageCount = 3;
   bool success = 4;
   int32 totalReceived = 5;
+}
+
+// Error detail message (for more professional error handling)
+message ErrorDetail {
+  string field = 1;
+  string description = 2;
 }

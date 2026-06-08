@@ -14,6 +14,98 @@ public class GreeterService : Greeter.GreeterBase
 
     // Previous methods (Unary, Server Streaming, Client Streaming) unchanged...
 
+    // Previous Unary method (unchanged)
+    public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
+    {
+        _logger.LogInformation("Received Unary request from: {Name}", request.Name);
+
+        return Task.FromResult(new HelloReply
+        {
+            Message = $"Hello {request.Name}!",
+            Timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
+            MessageCount = 1,
+            Success = true
+        });
+    }
+
+    // New method: Server Streaming
+    public override async Task SayHelloServerStream(
+        HelloRequest request,
+        IServerStreamWriter<HelloReply> responseStream,
+        ServerCallContext context)
+    {
+        _logger.LogInformation(
+            "Starting Server Streaming for user: {Name} - Count: {Count}",
+            request.Name,
+            request.Count);
+
+        int total = request.Count > 0 ? request.Count : 5; // default 5 messages
+
+        for (int i = 1; i <= total; i++)
+        {
+            // Check if client cancelled the request
+            if (context.CancellationToken.IsCancellationRequested)
+            {
+                _logger.LogWarning("Request was cancelled by the client.");
+                break;
+            }
+
+            var reply = new HelloReply
+            {
+                Message = $"Message {i} of {total} - Hello {request.Name}!",
+                Timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
+                MessageCount = i,
+                Success = true
+            };
+
+            await responseStream.WriteAsync(reply);
+            _logger.LogInformation("Sent message #{i}", i);
+
+            // Simulate real streaming delay
+            await Task.Delay(800);
+        }
+
+        _logger.LogInformation("Server Streaming completed.");
+    }
+
+    public override async Task<HelloReply> SayHelloClientStream(
+    IAsyncStreamReader<HelloRequest> requestStream,
+    ServerCallContext context)
+    {
+        int receivedCount = 0;
+        string lastName = string.Empty;
+
+        _logger.LogInformation("Starting Client Streaming...");
+
+        await foreach (var request in requestStream.ReadAllAsync(context.CancellationToken))
+        {
+            receivedCount++;
+            lastName = request.Name;
+
+            _logger.LogInformation(
+                "Received message #{Count} from {Name}: {Message}",
+                receivedCount,
+                request.Name,
+                request.Message);
+
+            // Simulate per-message processing
+            await Task.Delay(300);
+        }
+
+        _logger.LogInformation(
+            "Client Streaming completed. Total received: {Count}",
+            receivedCount);
+
+        return new HelloReply
+        {
+            Message = $"✅ {receivedCount} messages successfully received from {lastName}.",
+            Timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
+            MessageCount = receivedCount,
+            Success = true,
+            TotalReceived = receivedCount
+        };
+    }
+
     // New method: Bidirectional Streaming
     public override async Task SayHelloBidirectional(
         IAsyncStreamReader<HelloRequest> requestStream,
@@ -54,5 +146,42 @@ public class GreeterService : Greeter.GreeterBase
         _logger.LogInformation(
             "Bidirectional Streaming completed. Total received: {Count}",
             receivedCount);
+    }
+
+    // New method for error handling / validation demo
+    public override Task<HelloReply> SayHelloWithValidation(HelloRequest request, ServerCallContext context)
+    {
+        // Robust validation logic
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            throw new RpcException(
+                new Status(StatusCode.InvalidArgument, "User name cannot be empty."),
+                new Metadata { { "error-detail", "Name field is required" } }
+            );
+        }
+
+        if (request.Name.Length < 3)
+        {
+            throw new RpcException(
+                new Status(StatusCode.InvalidArgument, "Name must be at least 3 characters long.")
+            );
+        }
+
+        if (!string.IsNullOrEmpty(request.Email) && !request.Email.Contains("@"))
+        {
+            throw new RpcException(
+                new Status(StatusCode.InvalidArgument, "Invalid email format."),
+                new Metadata { { "validation-error", "Invalid email format" } }
+            );
+        }
+
+        _logger.LogInformation("Validated request successfully: {Name}", request.Name);
+
+        return Task.FromResult(new HelloReply
+        {
+            Message = $"Hello {request.Name}! Validation completed successfully.",
+            Timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
+            Success = true
+        });
     }
 }

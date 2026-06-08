@@ -1,54 +1,45 @@
-﻿using Grpc.Core;
-using Grpc.Net.Client;
+﻿using Grpc.Net.Client;
+using Grpc.Core;
 using GrpcStreamingDemo;
 
-Console.WriteLine("=== gRPC Bidirectional Streaming Demo - Day 6 ===\n");
+Console.WriteLine("=== gRPC Error Handling Demo - Day 7 ===\n");
 
 using var channel = GrpcChannel.ForAddress("https://localhost:7007");
 var client = new Greeter.GreeterClient(channel);
 
 try
 {
-    using var call = client.SayHelloBidirectional();
-
-    Console.WriteLine("Bidirectional stream started. Sending and receiving messages...\n");
-
-    // Task for sending messages from client
-    var sendTask = Task.Run(async () =>
+    // Test 1: Valid request
+    Console.WriteLine("Test 1: Valid request");
+    var validRequest = new HelloRequest
     {
-        for (int i = 1; i <= 8; i++)
-        {
-            var request = new HelloRequest
-            {
-                Name = "Ali Rezaei",
-                Message = $"Bidirectional message #{i} from client",
-                Language = "C#"
-            };
+        Name = "Mohammad Jenabi",
+        Email = "mohammad@example.com"
+    };
 
-            await call.RequestStream.WriteAsync(request);
-            Console.WriteLine($"📤 Sent message {i}");
-            await Task.Delay(700);
-        }
+    var validReply = await client.SayHelloWithValidationAsync(validRequest);
+    Console.WriteLine($"✅ Success: {validReply.Message}\n");
 
-        await call.RequestStream.CompleteAsync();
-        Console.WriteLine("✅ Client finished sending messages.");
-    });
+    // Test 2: Invalid request (error case)
+    Console.WriteLine("Test 2: Invalid request");
+    var invalidRequest = new HelloRequest { Name = "ab" }; // too short name
 
-    // Receiving responses from server
-    await foreach (var reply in call.ResponseStream.ReadAllAsync())
+    await client.SayHelloWithValidationAsync(invalidRequest);
+}
+catch (RpcException ex)
+{
+    Console.WriteLine($"❌ RpcException occurred!");
+    Console.WriteLine($"StatusCode: {ex.StatusCode}");
+    Console.WriteLine($"Message: {ex.Status.Detail}");
+
+    foreach (var entry in ex.Trailers)
     {
-        Console.WriteLine($"📨 Received from server: {reply.Message}");
-        Console.WriteLine($"   Counter: {reply.MessageCount} | Timestamp: {reply.Timestamp}");
-        Console.WriteLine("   ──────────────────────────────");
+        Console.WriteLine($"Metadata: {entry.Key} = {entry.Value}");
     }
-
-    await sendTask;
-
-    Console.WriteLine("\n✅ Bidirectional streaming completed successfully.");
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"❌ Error: {ex.Message}");
+    Console.WriteLine($"❌ Unexpected error: {ex.Message}");
 }
 
 Console.WriteLine("\nPress any key to exit...");

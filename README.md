@@ -48,3 +48,11 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * Client Streaming
 * **Bidirectional Streaming (full duplex communication)**
 * Concurrent handling of sending and receiving messages
+
+## Implemented Features (Day 7)
+
+* Unary, Server Streaming, Client Streaming, and Bidirectional Streaming
+* **Robust error handling using `RpcException` and `StatusCode`**
+* Server-side input validation
+* Client-side handling of `RpcException`
+* Use of `Metadata` for enriched error details
