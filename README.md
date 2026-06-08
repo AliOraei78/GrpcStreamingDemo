@@ -72,7 +72,11 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * Simple authentication demo using the Authorization header
 * New method: `SayHelloWithMetadata`
 
-**Key points:**
+## Day 11: Interceptors (Logging + Validation)
 
-* Metadata is used to transfer auxiliary information without polluting the message model.
-* It is highly suitable for Logging, Tracing, Rate Limiting, and Authentication.
+* Implementing a `LoggingInterceptor` for centralized and unified logging
+* Implementing a `ValidationInterceptor` for reusable input validation
+* Registering interceptors in `Program.cs` using `MapGrpcService(options)`
+* Full separation of cross-cutting concerns from business logic
+* Basic support for Unary and Server Streaming calls
+
