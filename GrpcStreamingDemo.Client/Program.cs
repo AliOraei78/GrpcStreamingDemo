@@ -1,43 +1,50 @@
-﻿using Grpc.Net.Client;
+﻿using Grpc.Core;
+using Grpc.Net.Client;
 using GrpcStreamingDemo;
 
-Console.WriteLine("=== gRPC Client Streaming Demo - Day 5 ===\n");
+Console.WriteLine("=== gRPC Bidirectional Streaming Demo - Day 6 ===\n");
 
-using var channel = GrpcChannel.ForAddress("https://localhost:7007"); // check service port
+using var channel = GrpcChannel.ForAddress("https://localhost:7007");
 var client = new Greeter.GreeterClient(channel);
 
 try
 {
-    using var call = client.SayHelloClientStream();
+    using var call = client.SayHelloBidirectional();
 
-    Console.WriteLine("Sending multiple messages to server...\n");
+    Console.WriteLine("Bidirectional stream started. Sending and receiving messages...\n");
 
-    for (int i = 1; i <= 10; i++)
+    // Task for sending messages from client
+    var sendTask = Task.Run(async () =>
     {
-        var request = new HelloRequest
+        for (int i = 1; i <= 8; i++)
         {
-            Name = "Ali Jenabi",
-            Message = $"Message #{i} from client",
-            Language = "C#",
-            Email = "ali@example.com"
-        };
+            var request = new HelloRequest
+            {
+                Name = "Ali Rezaei",
+                Message = $"Bidirectional message #{i} from client",
+                Language = "C#"
+            };
 
-        await call.RequestStream.WriteAsync(request);
-        Console.WriteLine($"📤 Message {i} sent");
+            await call.RequestStream.WriteAsync(request);
+            Console.WriteLine($"📤 Sent message {i}");
+            await Task.Delay(700);
+        }
 
-        await Task.Delay(400); // simulate delay
+        await call.RequestStream.CompleteAsync();
+        Console.WriteLine("✅ Client finished sending messages.");
+    });
+
+    // Receiving responses from server
+    await foreach (var reply in call.ResponseStream.ReadAllAsync())
+    {
+        Console.WriteLine($"📨 Received from server: {reply.Message}");
+        Console.WriteLine($"   Counter: {reply.MessageCount} | Timestamp: {reply.Timestamp}");
+        Console.WriteLine("   ──────────────────────────────");
     }
 
-    await call.RequestStream.CompleteAsync(); // signal end of stream
+    await sendTask;
 
-    Console.WriteLine("\nWaiting for final server response...");
-
-    var response = await call;
-
-    Console.WriteLine("\n✅ Final server response:");
-    Console.WriteLine($"Message: {response.Message}");
-    Console.WriteLine($"Total Received: {response.TotalReceived}");
-    Console.WriteLine($"Timestamp: {response.Timestamp}");
+    Console.WriteLine("\n✅ Bidirectional streaming completed successfully.");
 }
 catch (Exception ex)
 {

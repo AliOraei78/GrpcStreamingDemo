@@ -40,3 +40,11 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * Client Streaming (sending multiple messages from client to server)
 * Usage of `IAsyncStreamReader` and `RequestStream.WriteAsync`
 * Full stream lifecycle management on both client and server sides
+
+## Implemented Features (Day 6)
+
+* Unary RPC
+* Server Streaming
+* Client Streaming
+* **Bidirectional Streaming (full duplex communication)**
+* Concurrent handling of sending and receiving messages

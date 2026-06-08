@@ -12,44 +12,47 @@ public class GreeterService : Greeter.GreeterBase
         _logger = logger;
     }
 
-    // Previous methods (Unary and Server Streaming) remain unchanged
+    // Previous methods (Unary, Server Streaming, Client Streaming) unchanged...
 
-    // New method: Client Streaming
-    public override async Task<HelloReply> SayHelloClientStream(
+    // New method: Bidirectional Streaming
+    public override async Task SayHelloBidirectional(
         IAsyncStreamReader<HelloRequest> requestStream,
+        IServerStreamWriter<HelloReply> responseStream,
         ServerCallContext context)
     {
         int receivedCount = 0;
-        string lastName = string.Empty;
 
-        _logger.LogInformation("Starting Client Streaming...");
+        _logger.LogInformation("Starting Bidirectional Streaming...");
 
-        await foreach (var request in requestStream.ReadAllAsync(context.CancellationToken))
+        // Task for reading requests and sending responses concurrently
+        var readTask = Task.Run(async () =>
         {
-            receivedCount++;
-            lastName = request.Name;
+            await foreach (var request in requestStream.ReadAllAsync(context.CancellationToken))
+            {
+                receivedCount++;
+                _logger.LogInformation("Received message from client: {Message}", request.Message);
 
-            _logger.LogInformation(
-                "Received message #{Count} from {Name}: {Message}",
-                receivedCount,
-                request.Name,
-                request.Message);
+                // Send immediate response back to client
+                var reply = new HelloReply
+                {
+                    Message = $"Server received: {request.Message}",
+                    Timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
+                    MessageCount = receivedCount,
+                    Success = true,
+                    TotalReceived = receivedCount
+                };
 
-            // Simulate per-message processing
-            await Task.Delay(300);
-        }
+                await responseStream.WriteAsync(reply);
+
+                // Simulated processing delay
+                await Task.Delay(600);
+            }
+        });
+
+        await readTask;
 
         _logger.LogInformation(
-            "Client Streaming completed. Total received: {Count}",
+            "Bidirectional Streaming completed. Total received: {Count}",
             receivedCount);
-
-        return new HelloReply
-        {
-            Message = $"✅ {receivedCount} messages successfully received from {lastName}.",
-            Timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
-            MessageCount = receivedCount,
-            Success = true,
-            TotalReceived = receivedCount
-        };
     }
 }

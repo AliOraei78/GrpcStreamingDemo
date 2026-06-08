@@ -11,8 +11,11 @@ service Greeter {
   // Server Streaming
   rpc SayHelloServerStream (HelloRequest) returns (stream HelloReply);
 
-  // Client Streaming - implemented today
+  // Client Streaming
   rpc SayHelloClientStream (stream HelloRequest) returns (HelloReply);
+
+  // Bidirectional Streaming - implemented today
+  rpc SayHelloBidirectional (stream HelloRequest) returns (stream HelloReply);
 }
 
 message HelloRequest {
@@ -20,7 +23,7 @@ message HelloRequest {
   string language = 2;
   string email = 3;
   int32 count = 4;
-  string message = 5; // message per chunk
+  string message = 5;
 }
 
 message HelloReply {
@@ -28,5 +31,5 @@ message HelloReply {
   string timestamp = 2;
   int32 messageCount = 3;
   bool success = 4;
-  int32 totalReceived = 5; // number of messages received by server
+  int32 totalReceived = 5;
 }
