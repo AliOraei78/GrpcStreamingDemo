@@ -4,18 +4,25 @@ option csharp_namespace = "GrpcStreamingDemo";
 
 package greet;
 
-// Service definition
+// Main service for this demo
 service Greeter {
-  // Unary RPC (single request → single response)
+  // Unary RPC (Day 1)
   rpc SayHello (HelloRequest) returns (HelloReply);
+
+  // Prepared for upcoming days
+  rpc SayHelloServerStream (HelloRequest) returns (stream HelloReply);
+  rpc SayHelloClientStream (stream HelloRequest) returns (HelloReply);
+  rpc SayHelloBidirectional (stream HelloRequest) returns (stream HelloReply);
 }
 
-// Request message
+// Messages
 message HelloRequest {
   string name = 1;
+  string language = 2; // New field for future extensibility
 }
 
-// Response message
 message HelloReply {
   string message = 1;
+  string timestamp = 2; // New field
+  int32 messageCount = 3;
 }
