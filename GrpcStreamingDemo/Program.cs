@@ -2,19 +2,21 @@ using GrpcStreamingDemo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Register gRPC and configure specific options for GreeterService
+// Register interceptors in DI container
+builder.Services.AddScoped<LoggingInterceptor>();
+builder.Services.AddScoped<ValidationInterceptor>();
+builder.Services.AddScoped<AuthInterceptor>();
+
+// Register gRPC and configure specific options for GreeterService
 builder.Services.AddGrpc()
     .AddServiceOptions<GreeterService>(options =>
     {
         options.Interceptors.Add<LoggingInterceptor>();
         options.Interceptors.Add<ValidationInterceptor>();
+        options.Interceptors.Add<AuthInterceptor>();
     });
 
 builder.Services.AddLogging();
-
-// Register interceptors in DI container
-builder.Services.AddScoped<LoggingInterceptor>();
-builder.Services.AddScoped<ValidationInterceptor>();
 
 var app = builder.Build();
 

@@ -1,72 +1,71 @@
 ﻿using Grpc.Core;
 using Grpc.Net.Client;
 using GrpcStreamingDemo;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
-Console.WriteLine("=== gRPC Interceptors Demo - Day 11 ===\n");
+Console.WriteLine("=== gRPC Authentication Demo - Day 12 ===\n");
 
 using var channel = GrpcChannel.ForAddress("https://localhost:7007");
 var client = new Greeter.GreeterClient(channel);
 
-Console.WriteLine("1. Validation test");
-Console.WriteLine("------------------------------------------");
-
-// Test 1: Invalid name (should fail)
-try
+async Task TestWithHeaders(Metadata headers, string testName)
 {
-    var invalidRequest = new HelloRequest { Name = "Al" };
-    var reply1 = await client.SayHelloAsync(invalidRequest);
-    Console.WriteLine("Unexpected success!");
-}
-catch (RpcException ex) when (ex.StatusCode == StatusCode.InvalidArgument)
-{
-    Console.WriteLine($"✅ Validation Interceptor worked correctly: {ex.Status.Detail}");
-}
-
-// Test 2: Valid request
-try
-{
-    var validRequest = new HelloRequest
+    try
     {
-        Name = "Ali Jenabi",
-        Email = "ali@example.com"
-    };
+        Console.WriteLine($"\nAuthentication Test: {testName}");
 
-    Console.WriteLine("\n2. Valid request (with Logging Interceptor)");
-    var reply2 = await client.SayHelloAsync(validRequest);
+        var reply = await client.SayHelloAsync(
+            new HelloRequest { Name = "Ali Jenabi" },
+            headers: headers
+        );
 
-    Console.WriteLine($"Success: {reply2.Message}");
-    Console.WriteLine($"Timestamp: {reply2.Timestamp}");
-}
-catch (RpcException ex)
-{
-    Console.WriteLine($"Error: {ex.Status.Detail}");
-}
-
-Console.WriteLine("\n3. Metadata test (Day 10)");
-try
-{
-    var metadata = new Metadata
+        Console.WriteLine($"Success: {reply.Message}");
+    }
+    catch (RpcException ex) when (ex.StatusCode == StatusCode.Unauthenticated)
     {
-        { "authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." },
-        { "x-custom-header", "Test-Interceptor-Value" },
-        { "accept-language", "fa-IR" },
-        { "user-agent", "GrpcClient-Day11" }
-    };
-
-    var reply3 = await client.SayHelloWithMetadataAsync(
-        new HelloRequest { Name = "Reza Ahmadi" },
-        headers: metadata
-    );
-
-    Console.WriteLine($"Metadata test success: {reply3.Message}");
-}
-catch (RpcException ex)
-{
-    Console.WriteLine($"Metadata error: {ex.Status.Detail}");
+        Console.WriteLine($"Unauthorized: {ex.Status.Detail}");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error: {ex.Message}");
+    }
 }
 
-Console.WriteLine("\nInterceptor tests completed successfully.");
-Console.WriteLine("Check server logs for LoggingInterceptor and ValidationInterceptor output.");
+// Test 1: No authentication (should fail)
+await TestWithHeaders(new Metadata(), "No Authentication");
 
-Console.WriteLine("\nPress any key to exit...");
+// Test 2: API Key authentication
+var apiKeyHeaders = new Metadata { { "x-api-key", "my-secret-api-key-12345" } };
+await TestWithHeaders(apiKeyHeaders, "Valid API Key");
+
+// Test 3: JWT authentication
+var jwtToken = GenerateJwtToken();
+var jwtHeaders = new Metadata { { "authorization", $"Bearer {jwtToken}" } };
+await TestWithHeaders(jwtHeaders, "Valid JWT");
+
+Console.WriteLine("\nAuthentication tests completed.");
 Console.ReadKey();
+
+static string GenerateJwtToken()
+{
+    var tokenHandler = new JwtSecurityTokenHandler();
+    var key = Encoding.UTF8.GetBytes("YourSuperSecretKeyForJwtDemo_AtLeast32Chars!");
+
+    var tokenDescriptor = new SecurityTokenDescriptor
+    {
+        Subject = new ClaimsIdentity(new[]
+        {
+            new Claim("sub", "Ali Jenabi")
+        }),
+        Expires = DateTime.UtcNow.AddHours(1),
+        SigningCredentials = new SigningCredentials(
+            new SymmetricSecurityKey(key),
+            SecurityAlgorithms.HmacSha256Signature)
+    };
+
+    var token = tokenHandler.CreateToken(tokenDescriptor);
+    return tokenHandler.WriteToken(token);
+}

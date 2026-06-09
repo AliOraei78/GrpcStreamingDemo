@@ -80,3 +80,10 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * Full separation of cross-cutting concerns from business logic
 * Basic support for Unary and Server Streaming calls
 
+## Day 12: Authentication (API Key + JWT)
+
+* Implementing `AuthInterceptor` for authentication
+* Supporting both API Key and JWT authentication simultaneously
+* Handling `Unauthenticated` errors
+* Generating and validating JWT tokens
+* Integration with previous interceptors
