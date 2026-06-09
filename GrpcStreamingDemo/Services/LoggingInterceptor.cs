@@ -19,8 +19,9 @@ public class LoggingInterceptor : Interceptor
     {
         var methodName = context.Method;
         var startTime = DateTime.UtcNow;
+        var requestId = Guid.NewGuid().ToString("N").Substring(0, 8);
 
-        _logger.LogInformation("Starting call to {Method}", methodName);
+        _logger.LogInformation("🚀 Request {RequestId} started - Method: {Method}", requestId, methodName);
 
         try
         {
@@ -28,35 +29,25 @@ public class LoggingInterceptor : Interceptor
 
             var duration = DateTime.UtcNow - startTime;
             _logger.LogInformation(
-                "Completed {Method} in {Duration}ms",
-                methodName,
-                duration.TotalMilliseconds);
+                "✅ Request {RequestId} completed successfully - Method: {Method} - Duration: {Duration}ms",
+                requestId, methodName, duration.TotalMilliseconds);
 
             return response;
         }
         catch (RpcException ex)
         {
             var duration = DateTime.UtcNow - startTime;
-
             _logger.LogWarning(
-                "RpcException in {Method} | Status: {Status} | Detail: {Detail} | Duration: {Duration}ms",
-                methodName,
-                ex.StatusCode,
-                ex.Status.Detail,
-                duration.TotalMilliseconds);
-
-            throw; // Important: must rethrow
+                "⚠️ Request {RequestId} failed - Method: {Method} - Status: {Status} - Detail: {Detail} - Duration: {Duration}ms",
+                requestId, methodName, ex.StatusCode, ex.Status.Detail, duration.TotalMilliseconds);
+            throw;
         }
         catch (Exception ex)
         {
             var duration = DateTime.UtcNow - startTime;
-
-            _logger.LogError(
-                ex,
-                "Unexpected error in {Method} | Duration: {Duration}ms",
-                methodName,
-                duration.TotalMilliseconds);
-
+            _logger.LogError(ex,
+                "❌ Unexpected error in Request {RequestId} - Method: {Method} - Duration: {Duration}ms",
+                requestId, methodName, duration.TotalMilliseconds);
             throw;
         }
     }

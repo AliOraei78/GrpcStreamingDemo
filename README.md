@@ -87,3 +87,10 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * Handling `Unauthenticated` errors
 * Generating and validating JWT tokens
 * Integration with previous interceptors
+
+## Day 13: Advanced Logging and Health Checks
+
+* Enhancing `LoggingInterceptor` with Request ID and structured logging
+* Implementing `GrpcHealthCheck`
+* Adding Health Check endpoints (`/health` and `/healthz`)
+* Preparing for production-grade monitoring (Kubernetes, Docker, etc.)
