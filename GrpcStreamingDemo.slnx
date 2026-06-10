@@ -6,5 +6,6 @@
     <File Path="README.md" />
   </Folder>
   <Project Path="GrpcStreamingDemo.Client/GrpcStreamingDemo.Client.csproj" />
+  <Project Path="GrpcStreamingDemo.Tests/GrpcStreamingDemo.Tests.csproj" Id="4f51376e-3cdc-40e1-9f83-8b6c51c0211b" />
   <Project Path="GrpcStreamingDemo/GrpcStreamingDemo.csproj" />
 </Solution>

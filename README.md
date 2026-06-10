@@ -94,3 +94,11 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * Implementing `GrpcHealthCheck`
 * Adding Health Check endpoints (`/health` and `/healthz`)
 * Preparing for production-grade monitoring (Kubernetes, Docker, etc.)
+
+## Day 14: Unit Testing gRPC Services with xUnit
+
+* Creating a separate test project (`GrpcStreamingDemo.Tests`)
+* Writing tests for Unary methods (`SayHello` and `SayHelloWithValidation`)
+* Using `xUnit` (`Fact` and `Theory`) and `Moq`
+* Testing `RpcException` error scenarios
+* Creating a helper class for `TestServerCallContext`
