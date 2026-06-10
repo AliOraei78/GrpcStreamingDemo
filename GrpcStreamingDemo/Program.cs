@@ -1,8 +1,14 @@
+using GrpcStreamingDemo.Application.Interfaces;
+using GrpcStreamingDemo.Application.Services;
+using GrpcStreamingDemo.Infrastructure.Persistence;
 using GrpcStreamingDemo.Services;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Dependency Injection
+builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
+builder.Services.AddScoped<UserService>();
 // Register interceptors in DI container
 builder.Services.AddScoped<LoggingInterceptor>();
 builder.Services.AddScoped<ValidationInterceptor>();

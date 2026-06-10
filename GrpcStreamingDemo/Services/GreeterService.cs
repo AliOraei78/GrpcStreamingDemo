@@ -319,4 +319,147 @@ public class GreeterService : Greeter.GreeterBase
             Timestamp = DateTime.UtcNow.ToString("o")
         });
     }
+
+    // Day 17: Update User
+    public override Task<UserReply> UpdateUser(UpdateUserRequest request, ServerCallContext context)
+    {
+        var user = _users.FirstOrDefault(u => u.Id == request.Id);
+
+        if (user == null)
+        {
+            throw new RpcException(new Status(StatusCode.NotFound, $"User with ID {request.Id} not found."));
+        }
+
+        // Update fields
+        if (!string.IsNullOrEmpty(request.Name)) user.Name = request.Name;
+        if (!string.IsNullOrEmpty(request.Email)) user.Email = request.Email;
+        if (!string.IsNullOrEmpty(request.Role)) user.Role = request.Role;
+
+        _logger.LogInformation("User updated: {Name} (ID: {Id})", user.Name, user.Id);
+
+        return Task.FromResult(new UserReply
+        {
+            User = user,
+            Success = true,
+            Message = "User updated successfully",
+            Timestamp = DateTime.UtcNow.ToString("o")
+        });
+    }
+
+    // Day 17: Delete User
+    public override Task<DeleteReply> DeleteUser(DeleteUserRequest request, ServerCallContext context)
+    {
+        var user = _users.FirstOrDefault(u => u.Id == request.Id);
+
+        if (user == null)
+        {
+            throw new RpcException(new Status(StatusCode.NotFound, $"User with ID {request.Id} not found."));
+        }
+
+        _users.Remove(user);
+        _logger.LogInformation("User deleted: ID {Id}", request.Id);
+
+        return Task.FromResult(new DeleteReply
+        {
+            Success = true,
+            Message = $"User with ID {request.Id} deleted successfully"
+        });
+    }
+
+    // Day 17: Server Streaming - Stream All Users
+    public override async Task StreamUsers(
+        Empty request,
+        IServerStreamWriter<UserReply> responseStream,
+        ServerCallContext context)
+    {
+        _logger.LogInformation("Starting Server Streaming of all users...");
+
+        foreach (var user in _users)
+        {
+            if (context.CancellationToken.IsCancellationRequested)
+                break;
+
+            var reply = new UserReply
+            {
+                User = user,
+                Success = true,
+                Message = "User streamed",
+                Timestamp = DateTime.UtcNow.ToString("o")
+            };
+
+            await responseStream.WriteAsync(reply);
+            _logger.LogInformation("Streamed user: {Name} (ID: {Id})", user.Name, user.Id);
+
+            await Task.Delay(600);
+        }
+
+        _logger.LogInformation("Server Streaming completed.");
+    }
+
+    // Day 18: Bidirectional Streaming - User Events
+    public override async Task UserEvents(
+        IAsyncStreamReader<UserEventRequest> requestStream,
+        IServerStreamWriter<UserEventReply> responseStream,
+        ServerCallContext context)
+    {
+        _logger.LogInformation("Bidirectional streaming started - waiting for user events...");
+
+        await foreach (var eventRequest in requestStream.ReadAllAsync(context.CancellationToken))
+        {
+            if (context.CancellationToken.IsCancellationRequested)
+                break;
+
+            _logger.LogInformation(
+                "Received event: {Action} for user {Name}",
+                eventRequest.Action,
+                eventRequest.User?.Name);
+
+            User? processedUser = null;
+
+            // Process event
+            if (eventRequest.Action == "create" && eventRequest.User != null)
+            {
+                var newUser = new User
+                {
+                    Id = _nextId++,
+                    Name = eventRequest.User.Name,
+                    Email = eventRequest.User.Email,
+                    Role = eventRequest.User.Role,
+                    CreatedAt = DateTime.UtcNow.ToString("o")
+                };
+
+                _users.Add(newUser);
+                processedUser = newUser;
+            }
+            else if (eventRequest.Action == "update" && eventRequest.User != null)
+            {
+                var user = _users.FirstOrDefault(u => u.Id == eventRequest.User.Id);
+
+                if (user != null)
+                {
+                    user.Name = eventRequest.User.Name ?? user.Name;
+                    user.Email = eventRequest.User.Email ?? user.Email;
+                    user.Role = eventRequest.User.Role ?? user.Role;
+
+                    processedUser = user;
+                }
+            }
+
+            // Send immediate response back to client
+            var reply = new UserEventReply
+            {
+                EventType = eventRequest.Action,
+                User = processedUser,
+                Timestamp = DateTime.UtcNow.ToString("o")
+            };
+
+            await responseStream.WriteAsync(reply);
+
+            _logger.LogInformation("Event processed and returned: {Action}", eventRequest.Action);
+
+            await Task.Delay(400); // Simulated processing delay
+        }
+
+        _logger.LogInformation("Bidirectional streaming completed.");
+    }
 }

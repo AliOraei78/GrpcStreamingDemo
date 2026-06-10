@@ -13,4 +13,12 @@
 	<Protobuf Include="..\greet.proto" GrpcServices="Both" Link="greet.proto" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Application\DTOs\" />
+    <Folder Include="Application\Services\" />
+    <Folder Include="Domain\Exceptions\" />
+    <Folder Include="Domain\Common\" />
+    <Folder Include="Infrastructure\DependencyInjection\" />
+  </ItemGroup>
+
 </Project>

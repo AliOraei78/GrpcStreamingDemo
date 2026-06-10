@@ -112,8 +112,24 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 
 ## Days 16–18: CRUD + Streaming (Real-World User Management Scenario)
 
-**Day 16:**
+## Days 16
 
 * Defining the User model and Create/Get methods
 * In-memory storage implementation
 * Initial CRUD testing
+
+## Day 17: Update + Delete + Server Streaming
+
+* Full implementation of `UpdateUser` and `DeleteUser`
+* Server streaming using `StreamUsers`
+* Handling `NotFound` errors
+* Real-world CRUD scenario combined with streaming
+
+## Days 19–20: Clean Architecture + Dependency Injection
+
+## Days 19
+
+* Applying Clean Architecture principles (Domain, Application, Infrastructure, Presentation layers)
+* Introducing the Repository Pattern for better abstraction
+* Improving Dependency Injection setup
+* Preparing the project for better scalability and maintainability
