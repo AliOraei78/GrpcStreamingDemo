@@ -10,7 +10,7 @@
     <PackageReference Include="Grpc.AspNetCore" Version="2.64.0" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.8" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.1" />
-	<Protobuf Include="..\greet.proto" GrpcServices="Server" Link="greet.proto" />
+	<Protobuf Include="..\greet.proto" GrpcServices="Both" Link="greet.proto" />
   </ItemGroup>
 
 </Project>

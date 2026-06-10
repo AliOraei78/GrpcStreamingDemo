@@ -102,3 +102,10 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * Using `xUnit` (`Fact` and `Theory`) and `Moq`
 * Testing `RpcException` error scenarios
 * Creating a helper class for `TestServerCallContext`
+
+## Day 15: Integration Testing and Test Server
+
+* Creating integration tests using `WebApplicationFactory`
+* Performing end-to-end testing of gRPC services (Unary, Validation, Authentication)
+* Testing the Health Check endpoint
+* Using `GrpcChannel` with the test client
