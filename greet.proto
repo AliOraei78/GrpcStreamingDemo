@@ -25,6 +25,17 @@ service Greeter {
 
   // New method for Metadata & Headers demonstration
   rpc SayHelloWithMetadata (HelloRequest) returns (HelloReply);
+
+  // ==================== CRUD User ====================
+  rpc CreateUser (CreateUserRequest) returns (UserReply);
+  rpc GetUser (GetUserRequest) returns (UserReply);
+  rpc GetAllUsers (Empty) returns (UserListReply);           // Server Streaming later
+  rpc UpdateUser (UpdateUserRequest) returns (UserReply);
+  rpc DeleteUser (DeleteUserRequest) returns (DeleteReply);
+
+  // Streaming
+  rpc StreamUsers (Empty) returns (stream UserReply);        // Server Streaming
+  rpc UserEvents (stream UserEventRequest) returns (stream UserEventReply); // Bidirectional
 }
 
 message HelloRequest {
@@ -48,4 +59,64 @@ message HelloReply {
 message ErrorDetail {
   string field = 1;
   string description = 2;
+}
+
+// ==================== User Messages ====================
+message Empty {}
+
+message User {
+  int32 id = 1;
+  string name = 2;
+  string email = 3;
+  string role = 4;
+  string createdAt = 5;
+}
+
+message CreateUserRequest {
+  string name = 1;
+  string email = 2;
+  string role = 3;
+}
+
+message GetUserRequest {
+  int32 id = 1;
+}
+
+message UpdateUserRequest {
+  int32 id = 1;
+  string name = 2;
+  string email = 3;
+  string role = 4;
+}
+
+message DeleteUserRequest {
+  int32 id = 1;
+}
+
+message UserReply {
+  User user = 1;
+  bool success = 2;
+  string message = 3;
+  string timestamp = 4;
+}
+
+message UserListReply {
+  repeated User users = 1;
+  string message = 2;
+}
+
+message DeleteReply {
+  bool success = 1;
+  string message = 2;
+}
+
+message UserEventRequest {
+  string action = 1; // "create", "update", "delete"
+  User user = 2;
+}
+
+message UserEventReply {
+  string eventType = 1;
+  User user = 2;
+  string timestamp = 3;
 }

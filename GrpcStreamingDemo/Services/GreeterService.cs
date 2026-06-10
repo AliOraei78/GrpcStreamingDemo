@@ -6,7 +6,8 @@ namespace GrpcStreamingDemo.Services;
 public class GreeterService : Greeter.GreeterBase
 {
     private readonly ILogger<GreeterService> _logger;
-
+    private static readonly List<User> _users = new();
+    private static int _nextId = 1;
     public GreeterService(ILogger<GreeterService> logger)
     {
         _logger = logger;
@@ -273,5 +274,49 @@ public class GreeterService : Greeter.GreeterBase
             Timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
             Success = true
         };
+    }
+
+    // Day 16: CRUD - Create User
+    public override Task<UserReply> CreateUser(CreateUserRequest request, ServerCallContext context)
+    {
+        var user = new User
+        {
+            Id = _nextId++,
+            Name = request.Name,
+            Email = request.Email,
+            Role = request.Role ?? "User",
+            CreatedAt = DateTime.UtcNow.ToString("o")
+        };
+
+        _users.Add(user);
+
+        _logger.LogInformation("User created: {Name} (ID: {Id})", user.Name, user.Id);
+
+        return Task.FromResult(new UserReply
+        {
+            User = user,
+            Success = true,
+            Message = "User created successfully",
+            Timestamp = DateTime.UtcNow.ToString("o")
+        });
+    }
+
+    // Day 16: Get User
+    public override Task<UserReply> GetUser(GetUserRequest request, ServerCallContext context)
+    {
+        var user = _users.FirstOrDefault(u => u.Id == request.Id);
+
+        if (user == null)
+        {
+            throw new RpcException(new Status(StatusCode.NotFound, $"User with ID {request.Id} not found."));
+        }
+
+        return Task.FromResult(new UserReply
+        {
+            User = user,
+            Success = true,
+            Message = "User retrieved successfully",
+            Timestamp = DateTime.UtcNow.ToString("o")
+        });
     }
 }

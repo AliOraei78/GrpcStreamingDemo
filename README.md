@@ -109,3 +109,11 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * Performing end-to-end testing of gRPC services (Unary, Validation, Authentication)
 * Testing the Health Check endpoint
 * Using `GrpcChannel` with the test client
+
+## Days 16–18: CRUD + Streaming (Real-World User Management Scenario)
+
+**Day 16:**
+
+* Defining the User model and Create/Get methods
+* In-memory storage implementation
+* Initial CRUD testing

@@ -16,8 +16,8 @@ builder.Services.AddGrpc()
     .AddServiceOptions<GreeterService>(options =>
     {
         options.Interceptors.Add<LoggingInterceptor>();
-        options.Interceptors.Add<ValidationInterceptor>();
-        options.Interceptors.Add<AuthInterceptor>();
+        //options.Interceptors.Add<ValidationInterceptor>();
+       // options.Interceptors.Add<AuthInterceptor>();
     });
 
 builder.Services.AddLogging();
