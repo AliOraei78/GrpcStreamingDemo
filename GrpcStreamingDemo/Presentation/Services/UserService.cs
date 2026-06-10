@@ -14,11 +14,39 @@ public class UserService
         _logger = logger;
     }
 
-    public async Task<User> CreateUserAsync(string name, string email, string role)
+    public async Task<User> CreateUserAsync(string name, string email, string? role = null)
     {
-        var user = new User { Name = name, Email = email, Role = role };
-        var created = await _repository.AddAsync(user);
-        _logger.LogInformation("User created with ID: {Id}", created.Id);
-        return created;
+        var user = new User
+        {
+            Name = name,
+            Email = email,
+            Role = role ?? "User"
+        };
+
+        var createdUser = await _repository.AddAsync(user);
+        _logger.LogInformation("User created successfully. ID: {Id}", createdUser.Id);
+        return createdUser;
+    }
+
+    public async Task<User?> GetUserByIdAsync(int id)
+    {
+        return await _repository.GetByIdAsync(id);
+    }
+
+    public async Task<List<User>> GetAllUsersAsync()
+    {
+        return await _repository.GetAllAsync();
+    }
+
+    public async Task UpdateUserAsync(User user)
+    {
+        await _repository.UpdateAsync(user);
+        _logger.LogInformation("User updated. ID: {Id}", user.Id);
+    }
+
+    public async Task DeleteUserAsync(int id)
+    {
+        await _repository.DeleteAsync(id);
+        _logger.LogInformation("User deleted. ID: {Id}", id);
     }
 }
