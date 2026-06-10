@@ -140,3 +140,10 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * Complete separation of layers (Domain, Application, Infrastructure)
 * Improved Dependency Injection and testability
 * Professional structure ready for scaling and deployment
+
+## Day 21: Dockerizing the Service
+
+* Creating a multi-stage `Dockerfile` for optimized builds and smaller image sizes
+* Supporting Solution/Project-based application structures
+* Using Docker build and run commands
+* Fully preparing the service for deployment

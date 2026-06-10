@@ -3,6 +3,8 @@
     <File Path="greet.proto" />
   </Folder>
   <Folder Name="/Solution Items/">
+    <File Path=".dockerignore" />
+    <File Path="Dockerfile" />
     <File Path="README.md" />
   </Folder>
   <Project Path="GrpcStreamingDemo.Client/GrpcStreamingDemo.Client.csproj" />
