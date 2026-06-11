@@ -25,6 +25,8 @@ builder.Services.AddGrpc()
         //options.Interceptors.Add<ValidationInterceptor>();
        // options.Interceptors.Add<AuthInterceptor>();
     });
+builder.Services.AddGrpcReflection();
+
 
 builder.Services.AddLogging();
 
@@ -38,6 +40,8 @@ app.MapHealthChecks("/healthz", new Microsoft.AspNetCore.Diagnostics.HealthCheck
 
 // 2. Map the service cleanly
 app.MapGrpcService<GreeterService>();
+
+app.MapGrpcReflectionService();
 
 app.MapGet("/", () => "gRPC service is running. Use a gRPC client to call it.");
 

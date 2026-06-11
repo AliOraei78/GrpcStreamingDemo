@@ -147,3 +147,18 @@ A professional portfolio project demonstrating proficiency in **gRPC, Protobuf, 
 * Supporting Solution/Project-based application structures
 * Using Docker build and run commands
 * Fully preparing the service for deployment
+
+## Day 22: Documentation and Testing Tools (Swagger + gRPCurl + Postman)
+
+* Enabling gRPC Reflection
+* Testing using `grpcurl` (command line tool)
+* Graphical testing with **Postman**
+* Preparing professional documentation for clients and stakeholders
+
+**Useful gRPCurl commands:**
+
+* `grpcurl -plaintext localhost:7007 list`
+* `grpcurl -plaintext localhost:7007 describe Greeter.CreateUser`
+
+**Key points:**
+Good documentation and testing tools significantly improve developer experience, simplify debugging, and make APIs easier to integrate and maintain in real-world projects.
