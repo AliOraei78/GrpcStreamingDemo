@@ -3,6 +3,7 @@ using GrpcStreamingDemo.Application.Services;
 using GrpcStreamingDemo.Infrastructure.Persistence;
 using GrpcStreamingDemo.Services;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using static GrpcStreamingDemo.Greeter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,9 +27,11 @@ builder.Services.AddGrpc()
        // options.Interceptors.Add<AuthInterceptor>();
     });
 builder.Services.AddGrpcReflection();
-
-
+builder.Services.AddRateLimiting();
 builder.Services.AddLogging();
+
+builder.Services.AddHttpClient<GreeterClient>()
+    .AddPolicyHandler(ResiliencePolicies.GetRetryPolicy());
 
 var app = builder.Build();
 
